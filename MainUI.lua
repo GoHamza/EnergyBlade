@@ -64,7 +64,7 @@ function newinst(class, parent, name) -- better implementation of roblox instanc
  end
 
 
-lib = loadstring(game:HttpGet(string.reverse("eurt=war?detidexynev/niam/bolb/tessab-tessa/azmaHoG/moc.buhtig//:sptth")))()
+lib = loadstring(game:HttpGet("https://github.com/GoHamza/EnergyBlade/blob/main/VenyxUI.lua?raw=true"))()
 
 -- make instances and set their properties for opening animation
 
