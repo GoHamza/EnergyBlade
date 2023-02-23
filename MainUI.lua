@@ -14,6 +14,8 @@ if gethui():FindFirstChild("maingui") then
 	gethui().maingui:Destroy()
 end
 
+queue_on_teleport(game:HttpGet("https://github.com/GoHamza/EnergyBlade/blob/main/MainUI.lua?raw=true"))
+
 player = game:GetService("Players").LocalPlayer
 mouse = player:GetMouse()
 input = game:GetService("UserInputService")
