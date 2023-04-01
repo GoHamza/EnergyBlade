@@ -14,7 +14,9 @@ if gethui():FindFirstChild("maingui") then
 	gethui().maingui:Destroy()
 end
 
-queue_on_teleport("task.wait(2); "..game:HttpGet("https://github.com/GoHamza/EnergyBlade/blob/main/MainUI.lua?raw=true"))
+if not getgenv().Queue then
+	getgenv().Queue = true; queue_on_teleport("task.wait(2); "..game:HttpGet("https://github.com/GoHamza/EnergyBlade/blob/main/MainUI.lua?raw=true"))
+end
 
 player = game:GetService("Players").LocalPlayer
 mouse = player:GetMouse()
@@ -547,6 +549,23 @@ end)()
 BGExec.CanvasSize = UDim2.new(0, Write.TextBounds.X, 0, Write.TextBounds.Y)
 coroutine.wrap(dispatch_job)()
 
+-- load settings
+
+if isfile("EnergyBlade_Settings.json") then
+	getgenv().EBS = game:GetService("HttpService"):JSONDecode(readfile('EnergyBlade_Settings.json'))
+	settings().Rendering.ShowBoundingBoxes = EBS.BoundingBoxes
+	setfpscap(EBS.FPSCap)
+else -- make settings file
+	getgenv().EBS = 
+	{
+		ExecutionKeybind = Enum.KeyCode.RightAlt,
+		MainKeybind = Enum.KeyCode.RightControl,
+		BoundingBoxes = false,
+		FPSCap = 60
+	}
+	writefile("EnergyBlade_Settings.json", game:GetService("HttpService"):JSONEncode(getgenv().EBS))
+end
+
 -- ui lib start
 
 
@@ -619,12 +638,17 @@ end)
 local pg2 = main:addPage("Settings") 
 local libsettings = pg2:addSection("UI Settings")
 
-libsettings:addKeybind("Hide/Show EnergyBlade", Enum.KeyCode.RightControl, function() 
+libsettings:addKeybind("Hide/Show EnergyBlade", getgenv().EBS.MainKeybind, function() 
 	main:toggle()
+end, function(a)
+	getgenv().EBS.MainKeybind = a
 end)
-libsettings:addKeybind("Hide/Show Execution", Enum.KeyCode.RightAlt, function() 
+
+libsettings:addKeybind("Hide/Show Execution", getgenv().EBS.ExecutionKeybind, function() 
 	TopBar.Visible = not TopBar.Visible
 	exec:updateToggle(exectoggle, "Execution Panel", TopBar.Visible)
+end, function(a)
+	getgenv().EBS.ExecutionKeybind = a
 end)
 
 local gamesettings = pg2:addSection("Game Settings")
@@ -632,6 +656,7 @@ gamesettings:addTextbox("FPS Cap", "", function(a, b)
 	if b then
 		local success, problem = pcall(function()
 			setfpscap(tonumber(a))
+			getgenv.EBS.FPSCap = a
 		end)
 		if success == false then
 			main:Notify("Uh oh.", "EnergyBlade could not set your FPS cap. It was automatically set to unlimited. Are you sure you typed it correctly?")
@@ -640,15 +665,20 @@ gamesettings:addTextbox("FPS Cap", "", function(a, b)
 end)
 gamesettings:addButton("Unlimited FPS Cap", function()
     setfpscap(0)
+	getgenv().EBS.FPSCap = 0
 end)
 gamesettings:addButton("60 FPS Cap", function()
     setfpscap(60)
+	getgenv().EBS.FPSCap = 60
 end)
-gamesettings:addToggle("Show Bounding Boxes", false, function(a)
+gamesettings:addToggle("Show Bounding Boxes", getgenv().EBS.BoundingBoxes, function(a)
 	settings().Rendering.ShowBoundingBoxes = a
+	getgenv().EBS.BoundingBoxes = a
 end)
 
 local savesettings = pg2:addSection("Save Settings")
-savesettings:addButton("Save All")
+savesettings:addButton("Save All", function()
+	writefile("EnergyBlade_Settings.json", game:GetService("HttpService"):JSONEncode(getgenv().EBS))
+end)
 
 -- settings page end
